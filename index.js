@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, Admin } = require('mongodb');
 const ServiceRouter = require('./Routes/Service.Route')
 const app = express()
 const port = process.env.PORT || 5000;
@@ -15,7 +15,7 @@ app.use(express.json())
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.vugvxkr.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
-function verifyJWT  (req, res, next){
+function verifyJWT(req, res, next) {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
     return res.status(401).send({ message: 'unAuthorized access' })
@@ -39,10 +39,12 @@ async function run() {
     const serviceCollection = client.db('creative').collection('service')
     const reviewCollection = client.db('creative').collection('review')
     const userCollection = client.db('creative').collection('user')
+    const orderCollection = client.db('creative').collection('order')
+
 
     const verifyAdmin = async (req, res, next) => {
       const requester = req.decoded.email;
-   
+
       const requesterAccount = await userCollection.findOne({ email: requester });
       console.log(requesterAccount)
       if (requesterAccount.role === 'admin') {
@@ -90,7 +92,14 @@ async function run() {
 
     });
 
-    app.put('/user/admin/:email', verifyJWT,  async (req, res) => {
+    app.get('/admin/:email', async (req, res) => {
+      const email = req.params.email;
+      const result = await userCollection.findOne({ email: email });
+      const isAdmin = result.role === "admin"
+      res.send({ admin: isAdmin })
+    })
+
+    app.put('/user/admin/:email', verifyJWT, async (req, res) => {
       const email = req.params.email;
       const filter = { email: email };
       const updateDoc = {
@@ -100,10 +109,19 @@ async function run() {
       res.send(result);
     })
 
+
     // add service
     app.post('/service', async (req, res) => {
       const inserted = req.body
       const result = await serviceCollection.insertOne(inserted)
+      res.send(result)
+    });
+
+    // order 
+
+    app.post('/order', async(req, res) => {
+      const orderData = req.body;
+      const result = await orderCollection.insertOne(orderData)
       res.send(result)
     })
   }
