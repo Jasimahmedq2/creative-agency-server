@@ -2,7 +2,7 @@ const express = require('express')
 const cors = require('cors');
 const dotenv = require('dotenv');
 const jwt = require('jsonwebtoken');
-const { MongoClient, ServerApiVersion, Admin } = require('mongodb');
+const { MongoClient, ServerApiVersion, Admin, ObjectId } = require('mongodb');
 const ServiceRouter = require('./Routes/Service.Route')
 const app = express()
 const port = process.env.PORT || 5000;
@@ -119,11 +119,37 @@ async function run() {
 
     // order 
 
-    app.post('/order', async(req, res) => {
+    app.post('/order', async (req, res) => {
       const orderData = req.body;
       const result = await orderCollection.insertOne(orderData)
       res.send(result)
     })
+
+    // get user data
+    app.get('/order/:email', async (req, res) => {
+      const email = req.params.email
+      const getData = await orderCollection.find({ email: email }).toArray();
+      res.send(getData)
+    })
+
+    // get all service 
+    app.get('/order', async (req, res) => {
+      const result = await orderCollection.find().toArray();
+      res.send(result)
+    })
+
+    // update status 
+    app.put('/order/:id', async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+      const updateDoc = {
+        $set: { status: 'Done' },
+      };
+      const result = await orderCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    })
+    
+    // 
   }
 
   finally {
