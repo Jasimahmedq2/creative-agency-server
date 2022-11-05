@@ -172,9 +172,8 @@ async function run() {
 }
 run().catch(console.dir())
 
-app.get('/', async(req, res) => {
-  const data = await serviceCollection.find().toArray();
-  res.send(data)
+app.get('/',(req, res) => {
+  res.send('hello world')
 })
 
 app.listen(port, () => {
