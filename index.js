@@ -5,12 +5,10 @@ const jwt = require('jsonwebtoken');
 const { MongoClient, ServerApiVersion, Admin, ObjectId } = require('mongodb');
 const ServiceRouter = require('./Routes/Service.Route')
 const app = express()
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 9000;
 require('dotenv').config()
 
-app.use(cors({
-  origin: "*"
-}))
+app.use(cors())
 app.use(express.json())
 
 
