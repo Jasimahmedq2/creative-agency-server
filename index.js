@@ -58,14 +58,14 @@ async function run() {
     // app.use('/service', ServiceRouter)
     app.get('/service', async (req, res) => {
       const query = {}
-      const cursor = serviceCollection.find(query)
+      const cursor = serviceCollection.find(query).sort({$natural:1})
       const result = await cursor.toArray()
       res.send(result)
     })
 
     app.get('/review', async (req, res) => {
       const query = {}
-      const cursor = reviewCollection.find(query)
+      const cursor = reviewCollection.find(query).sort({$natural:1})
       const result = await cursor.toArray()
       res.send(result)
     });
@@ -134,7 +134,7 @@ async function run() {
 
     // get all service 
     app.get('/order', async (req, res) => {
-      const result = await orderCollection.find().toArray();
+      const result = await orderCollection.find().sort({$natural:1}).toArray();
       res.send(result)
     })
 
